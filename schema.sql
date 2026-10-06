@@ -51,3 +51,24 @@ CREATE TABLE contact_events (
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 
 );
+
+
+CREATE TABLE queues (
+    queue_id TEXT PRIMARY KEY,
+    queue_name TEXT,
+    queue_type TEXT
+);
+
+
+
+CREATE TABLE agent_interactions (
+    interaction_id TEXT PRIMARY KEY,
+    contact_id TEXT NOT NULL,
+    queue_id TEXT NOT NULL,
+    agent_id TEXT NOT NULL,
+    started_at TIMESTAMP,
+    ended_at TIMESTAMP,
+    interaction_outcome TEXT,
+    FOREIGN KEY (contact_id) REFERENCES contact_events(contact_id),
+    FOREIGN KEY (queue_id) REFERENCES queues(queue_id)
+);
