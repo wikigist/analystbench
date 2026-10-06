@@ -9,3 +9,35 @@ The project will combine:
 - evaluation engineering
 - reliability testing
 - benchmark-driven analysis
+
+## Database Setup
+
+Create the PostgreSQL database:
+
+```bash
+createdb analystbench
+```
+
+Create the database tables:
+
+```bash
+psql analystbench -f schema.sql
+```
+
+Load the synthetic seed data:
+
+```bash
+psql analystbench -f seed_data.sql
+```
+
+Connect to the database:
+
+```bash
+psql analystbench
+```
+
+Inspect the available tables:
+
+```text
+\dt
+```
