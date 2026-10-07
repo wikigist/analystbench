@@ -1,0 +1,56 @@
+[
+  {
+    "id": "Q001",
+    "question": "How many customer contacts were recorded in September 2026?",
+    "difficulty": "easy",
+    "expected_answer": 7,
+    "answer_type": "integer",
+    "reference_sql": "SELECT COUNT(*) FROM contact_events WHERE started_at >= '2026-09-01' AND started_at < '2026-10-01';"
+  },
+  {
+  "id": "Q002",
+  "question": "How many customers contacted us in September 2026?",
+  "difficulty": "easy",
+  "expected_answer": 4,
+  "answer_type": "integer",
+  "reference_sql": "SELECT COUNT(DISTINCT customer_id) FROM contact_events WHERE started_at >= '2026-09-01' AND started_at < '2026-10-01';"
+},
+{
+  "id": "Q003",
+  "question": "Which queues handled the most agent interactions in September 2026?",
+  "difficulty": "medium",
+  "expected_answer": [
+    {
+      "queue_name": "General Enquiries",
+      "interaction_count": 5
+    },
+    {
+      "queue_name": "Payments",
+      "interaction_count": 3
+    },
+    {
+      "queue_name": "Complaints",
+      "interaction_count": 2
+    }
+  ],
+  "answer_type": "ranked_list",
+  "reference_sql": "SELECT q.queue_name, COUNT(*) AS interaction_count FROM agent_interactions ai JOIN queues q ON ai.queue_id = q.queue_id WHERE ai.started_at >= '2026-09-01' AND ai.started_at < '2026-10-01' GROUP BY q.queue_name ORDER BY interaction_count DESC;"
+},
+{
+  "id": "Q004",
+  "question": "Which customers had the most failed payment attempts in September 2026?",
+  "difficulty": "medium",
+  "expected_answer": [
+    {
+      "customer_id": "C001",
+      "failed_payment_count": 1
+    },
+    {
+      "customer_id": "C003",
+      "failed_payment_count": 1
+    }
+  ],
+  "answer_type": "unordered_list",
+  "reference_sql": "SELECT a.customer_id, COUNT(*) AS failed_payment_count FROM payments p JOIN accounts a ON p.account_id = a.account_id WHERE p.payment_status = 'failed' AND p.payment_date >= '2026-09-01' AND p.payment_date < '2026-10-01' GROUP BY a.customer_id ORDER BY failed_payment_count DESC, a.customer_id;"
+}
+]
