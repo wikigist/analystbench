@@ -1,6 +1,6 @@
 import json 
 import psycopg
-
+from evaluators import check_integer_answer, check_ranked_answer, check_unordered_answer
 
 def report_result(case_id, expected, actual, passed):
     print(case_id)
@@ -11,6 +11,8 @@ def report_result(case_id, expected, actual, passed):
         print("PASS")
     else:
         print("FAIL")
+
+
 
 with open("benchmarks/benchmark_cases.json", "r") as file:
     benchmark_cases = json.load(file)
@@ -27,7 +29,7 @@ with psycopg.connect("dbname=analystbench") as connection:
                 result = cursor.fetchone()
                 actual_answer = result[0]
 
-                passed = actual_answer == expected_answer
+                passed = check_integer_answer(actual_answer, expected_answer)
 
                 report_result(case["id"], expected_answer, actual_answer, passed)
 
@@ -48,7 +50,7 @@ with psycopg.connect("dbname=analystbench") as connection:
                               }
                          )
                 
-                    passed = actual_answer == expected_answer
+                    passed = check_ranked_answer(actual_answer, expected_answer)
 
                     report_result(case["id"], expected_answer, actual_answer, passed)
 
@@ -69,10 +71,7 @@ with psycopg.connect("dbname=analystbench") as connection:
                            }
                       )
 
-                 expected_sorted = sorted(expected_answer, key=lambda row: row["customer_id"])
-                 actual_sorted = sorted(actual_answer, key=lambda row: row["customer_id"])
-                 
-                 passed = actual_sorted == expected_sorted
+                 passed = check_unordered_answer(actual_answer, expected_answer)
 
                  report_result(case["id"], expected_answer, actual_answer, passed)
 
