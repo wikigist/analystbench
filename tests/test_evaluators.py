@@ -64,3 +64,61 @@ def test_ranked_answer_passes_when_order_matches():
     ]
 
     assert check_ranked_answer(actual, expected) is True
+
+
+
+def test_unordered_answer_passes_for_payment_groups():
+    expected = [
+        {
+            "payment_group": "failed_payment",
+            "customer_count": 2,
+            "total_contacts": 5,
+            "average_contacts": 2.5
+        },
+        {
+            "payment_group": "no_failed_payment",
+            "customer_count": 2,
+            "total_contacts": 2,
+            "average_contacts": 1.0
+        }
+    ]
+
+    actual = [
+        {
+            "payment_group": "no_failed_payment",
+            "customer_count": 2,
+            "total_contacts": 2,
+            "average_contacts": 1.0
+        },
+        {
+            "payment_group": "failed_payment",
+            "customer_count": 2,
+            "total_contacts": 5,
+            "average_contacts": 2.5
+        }
+    ]
+
+    assert check_unordered_answer(actual, expected, "payment_group") is True
+
+
+
+def test_unordered_answer_fails_when_average_is_wrong():
+    expected = [
+        {
+            "payment_group": "failed_payment",
+            "customer_count": 2,
+            "total_contacts": 5,
+            "average_contacts": 2.5
+        }
+    ]
+
+    actual = [
+        {
+            "payment_group": "failed_payment",
+            "customer_count": 2,
+            "total_contacts": 5,
+            "average_contacts": 3.5
+        }
+    ]
+
+    assert check_unordered_answer(actual, expected, "payment_group") is False

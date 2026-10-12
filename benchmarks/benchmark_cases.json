@@ -52,5 +52,27 @@
   ],
   "answer_type": "unordered_list",
   "reference_sql": "SELECT a.customer_id, COUNT(*) AS failed_payment_count FROM payments p JOIN accounts a ON p.account_id = a.account_id WHERE p.payment_status = 'failed' AND p.payment_date >= '2026-09-01' AND p.payment_date < '2026-10-01' GROUP BY a.customer_id ORDER BY failed_payment_count DESC, a.customer_id;"
-}
+},
+  {
+    "id": "Q005",
+    "question": "In September 2026, did customers with at least one failed payment attempt contact us more often on average than customers with no failed payment attempts? Include all customers, including those with no payments or zero contacts. Return the customer count, total contacts, and average contacts per customer for each group.",
+    "difficulty": "hard",
+    "expected_answer": [
+      {
+        "payment_group": "failed_payment",
+        "customer_count": 2,
+        "total_contacts": 5,
+        "average_contacts": 2.5
+      },
+      {
+        "payment_group": "no_failed_payment",
+        "customer_count": 2,
+        "total_contacts": 2,
+        "average_contacts": 1.0
+      }
+    ],
+    "answer_type": "unordered_list",
+    "sort_key": "payment_group",
+    "reference_sql": "WITH failed_payment_customers AS (SELECT DISTINCT a.customer_id FROM accounts a JOIN payments p ON a.account_id = p.account_id WHERE p.payment_status = 'failed' AND p.payment_date >= '2026-09-01' AND p.payment_date < '2026-10-01'), customer_contacts AS (SELECT c.customer_id, COUNT(ce.contact_id) AS september_contacts FROM customers c LEFT JOIN contact_events ce ON c.customer_id = ce.customer_id AND ce.started_at >= '2026-09-01' AND ce.started_at < '2026-10-01' GROUP BY c.customer_id), customer_summary AS (SELECT cc.customer_id, CASE WHEN f.customer_id IS NOT NULL THEN 'failed_payment' ELSE 'no_failed_payment' END AS payment_group, cc.september_contacts FROM customer_contacts cc LEFT JOIN failed_payment_customers f ON cc.customer_id = f.customer_id) SELECT payment_group, COUNT(*) AS customer_count, SUM(september_contacts) AS total_contacts, AVG(september_contacts) AS average_contacts FROM customer_summary GROUP BY payment_group ORDER BY payment_group;"
+  }
 ]

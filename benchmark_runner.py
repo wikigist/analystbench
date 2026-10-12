@@ -61,17 +61,19 @@ with psycopg.connect("dbname=analystbench") as connection:
                  cursor.execute(reference_sql)
                  result = cursor.fetchall()
 
+                 column_names = []
+
+                 for column in cursor.description:
+                     column_names.append(column.name)
+
                  actual_answer = []
 
                  for row in result:
-                      actual_answer.append(
-                           {
-                                "customer_id": row[0],
-                                "failed_payment_count": row[1]
-                           }
-                      )
+                     actual_answer.append(dict(zip(column_names, row)))
 
-                 passed = check_unordered_answer(actual_answer, expected_answer)
+
+                 sort_key = case.get("sort_key", "customer_id") 
+                 passed = check_unordered_answer(actual_answer, expected_answer, sort_key)
 
                  report_result(case["id"], expected_answer, actual_answer, passed)
 
