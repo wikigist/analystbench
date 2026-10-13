@@ -122,3 +122,17 @@ def test_unordered_answer_fails_when_average_is_wrong():
     ]
 
     assert check_unordered_answer(actual, expected, "payment_group") is False
+
+
+
+def test_unordered_answer_fails_when_group_is_missing():
+    expected = [
+        {"payment_group": "failed_payment", "customer_count": 2},
+        {"payment_group": "no_failed_payment", "customer_count": 2}
+    ]
+
+    actual = [
+        {"payment_group": "failed_payment", "customer_count": 2}
+    ]
+
+    assert check_unordered_answer(actual, expected, "payment_group") is False
