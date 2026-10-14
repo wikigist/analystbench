@@ -1,5 +1,6 @@
 from evaluators import check_unordered_answer
 from evaluators import check_unordered_answer, check_ranked_answer, check_integer_answer
+from decimal import Decimal
 
 
 def test_unordered_answer_passes_when_order_changes():
@@ -133,6 +134,32 @@ def test_unordered_answer_fails_when_group_is_missing():
 
     actual = [
         {"payment_group": "failed_payment", "customer_count": 2}
+    ]
+
+    assert check_unordered_answer(actual, expected, "payment_group") is False
+
+
+
+def test_unordered_answer_accepts_equivalent_decimals():
+    expected = [
+        {"payment_group": "failed_payment", "average_contacts": 0.1}
+    ]
+
+    actual = [
+        {"payment_group": "failed_payment", "average_contacts": Decimal("0.1")}
+    ]
+
+    assert check_unordered_answer(actual, expected, "payment_group") is True
+
+
+
+def test_unordered_answer_rejects_wrong_decimal_value():
+    expected = [
+        {"payment_group": "failed_payment", "average_contacts": 0.1}
+    ]
+
+    actual = [
+        {"payment_group": "failed_payment", "average_contacts": Decimal("0.2")}
     ]
 
     assert check_unordered_answer(actual, expected, "payment_group") is False
