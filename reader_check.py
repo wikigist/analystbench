@@ -28,8 +28,6 @@ with psycopg.connect(
         if result[0] != "analystbench_reader":
             raise RuntimeError("Unsafe database account detected")
 
-        # print("Cursor closed before Q001:", cursor.closed)
-
         cursor.execute("""
         SELECT COUNT(*) AS customer_contacts
         FROM contact_events
