@@ -1,5 +1,15 @@
 import sqlglot
 
+ALLOWED_TABLES = {
+    "customers",
+    "accounts",
+    "payments",
+    "refunds",
+    "contact_events",
+    "queues",
+    "agent_interactions",
+}
+
 def inspect_sql(sql):
     try:
         statements = sqlglot.parse(sql, read="postgres")
@@ -27,6 +37,27 @@ def inspect_sql(sql):
 
             if function.name.lower() == "pg_sleep":
                 print("REJECT: pg_sleep is not allowed")
+                return False
+
+
+        # Collect all table references
+        tables = list(statement.find_all(sqlglot.exp.Table))
+
+        # Reject queries with no table
+        if not tables:
+            print("REJECT: Query must reference at least one table")
+            return False
+
+        # Check each table found
+        for table in tables:
+            print("Table found:", table.name)
+
+            if table.name not in ALLOWED_TABLES:
+                print("REJECT: Table is not authorised:", table.name)
+                return False
+
+            if table.db and table.db != "public":
+                print("REJECT: Schema is not authorised:", table.db)
                 return False
 
     # Only reached if all the checks above pass

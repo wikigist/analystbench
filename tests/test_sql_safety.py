@@ -32,3 +32,44 @@ def test_rejects_sleep_function():
     result = inspect_sql("SELECT pg_sleep(10);")
 
     assert result is False
+
+
+def test_rejects_unauthorised_table():
+    result = inspect_sql(
+        "SELECT COUNT(*) FROM private_records;"
+    )
+
+    assert result is False
+
+
+
+def test_rejects_unauthorised_schema():
+    result = inspect_sql(
+        "SELECT COUNT(*) FROM secret_schema.contact_events;"
+    )
+
+    assert result is False
+
+
+def test_accepts_authorised_schema():
+    result = inspect_sql(
+        "SELECT COUNT(*) FROM public.contact_events;"
+    )
+
+    assert result is True
+
+
+
+def test_rejects_query_without_table():
+    result = inspect_sql("SELECT 1;")
+
+    assert result is False
+
+
+
+def test_accepts_join_between_allowed_tables():
+    result = inspect_sql(
+        "SELECT COUNT(*) FROM customers JOIN accounts ON customers.customer_id = accounts.customer_id;"
+    )
+
+    assert result is True
