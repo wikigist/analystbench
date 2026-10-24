@@ -1,4 +1,3 @@
-
 import os
 import psycopg
 from dotenv import load_dotenv
@@ -6,7 +5,7 @@ from evaluators import check_integer_answer
 from datetime import date
 
 
-def execute_q001_bounds(start_date, end_date):
+def execute_count_bounds(start_date, end_date, distinct_customers=False):
     load_dotenv()
 
     password = os.getenv("ANALYSTBENCH_READER_PASSWORD")
@@ -35,17 +34,38 @@ def execute_q001_bounds(start_date, end_date):
                 raise RuntimeError("Unsafe database account detected")
 
             # Execute our fixed, trusted Q001 query
-            cursor.execute("""
-            SELECT COUNT(*) AS customer_contacts
-            FROM public.contact_events
-            WHERE started_at >= %s
-            AND started_at < %s;
-            """, (start_date, end_date))
+
+            if distinct_customers:
+                query = """
+                    SELECT COUNT(DISTINCT customer_id)
+                    FROM public.contact_events
+                    WHERE started_at >= %s
+                      AND started_at < %s;
+                """
+            else:
+                query = """
+                    SELECT COUNT(*)
+                    FROM public.contact_events
+                    WHERE started_at >= %s
+                      AND started_at < %s;
+                """
+
+            cursor.execute(query, (start_date, end_date))
 
             actual_answer = cursor.fetchone()[0]
 
             return actual_answer
 
+def execute_q001_bounds(start_date, end_date):
+    return execute_count_bounds(start_date, end_date)
+
+
+def execute_q002_bounds(start_date, end_date):
+    return execute_count_bounds(
+        start_date,
+        end_date,
+        distinct_customers=True
+    )
 
 def execute_trusted_q001():
     return execute_q001_bounds(

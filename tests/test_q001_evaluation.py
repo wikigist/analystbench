@@ -1,5 +1,6 @@
 import q001_evaluation
 from datetime import date
+import psycopg
 
 
 SEPTEMBER_SQL = (
@@ -62,9 +63,9 @@ def test_q001_rejected_without_database_execution(monkeypatch):
 def test_q001_database_error(monkeypatch):
 
     def fake_database_query(start_date, end_date):
-        raise q001_evaluation.psycopg.OperationalError(
+        raise psycopg.OperationalError(
             "Database unavailable"
-        )
+            )
 
     monkeypatch.setattr(
         q001_evaluation,
