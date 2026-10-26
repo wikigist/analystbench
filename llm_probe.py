@@ -18,14 +18,14 @@ contact_reason TEXT
 
 question = "How many customer contacts were recorded in September 2026?"
 
-def generate_sql(question_text=question):
+def generate_sql(question_text=question, schema_text=schema):
     response = client.responses.create(
         model="gpt-5.4-mini",
         instructions=(
             "Write a PostgreSQL SELECT query using only the provided schema. "
             "Return SQL only, without Markdown or explanation."
             ),
-            input=f"Schema:\n{schema}\n\nQuestion:\n{question_text}",
+            input=f"Schema:\n{schema_text}\n\nQuestion:\n{question_text}",
             max_output_tokens=400,
             store=False,
             )

@@ -17,7 +17,7 @@
 },
 {
   "id": "Q003",
-  "question": "Which queues handled the most agent interactions in September 2026?",
+  "question": "Rank all queues by the number of agent interactions in September 2026, highest to lowest. Return every queue's name and interaction count.",
   "difficulty": "medium",
   "expected_answer": [
     {
