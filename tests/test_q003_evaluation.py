@@ -6,11 +6,7 @@ import q003_evaluation
 SEPTEMBER_START = date(2026, 9, 1)
 SEPTEMBER_END = date(2026, 10, 1)
 
-CORRECT_RANKING = [
-    {"queue_name": "General Enquiries", "interaction_count": 5},
-    {"queue_name": "Payments", "interaction_count": 3},
-    {"queue_name": "Complaints", "interaction_count": 2},
-]
+CORRECT_RANKING = q003_evaluation.get_q003_expected_answer()
 
 
 def test_q003_pass(monkeypatch):

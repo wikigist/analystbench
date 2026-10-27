@@ -19,22 +19,27 @@
   "id": "Q003",
   "question": "Rank all queues by the number of agent interactions in September 2026, highest to lowest. Return every queue's name and interaction count.",
   "difficulty": "medium",
-  "expected_answer": [
+"expected_answer": [
     {
-      "queue_name": "General Enquiries",
-      "interaction_count": 5
+        "queue_name": "General Enquiries",
+        "interaction_count": 5
     },
     {
-      "queue_name": "Payments",
-      "interaction_count": 3
+        "queue_name": "Payments",
+        "interaction_count": 3
     },
     {
-      "queue_name": "Complaints",
-      "interaction_count": 2
+        "queue_name": "Complaints",
+        "interaction_count": 2
+    },
+    {
+        "queue_name": "Retentions",
+        "interaction_count": 0
     }
-  ],
+],
   "answer_type": "ranked_list",
-  "reference_sql": "SELECT q.queue_name, COUNT(*) AS interaction_count FROM agent_interactions ai JOIN queues q ON ai.queue_id = q.queue_id WHERE ai.started_at >= '2026-09-01' AND ai.started_at < '2026-10-01' GROUP BY q.queue_name ORDER BY interaction_count DESC;"
+  "reference_sql": "SELECT q.queue_name, COUNT(ai.queue_id) AS interaction_count FROM queues q LEFT JOIN agent_interactions ai ON ai.queue_id = q.queue_id AND ai.started_at >= '2026-09-01' AND ai.started_at < '2026-10-01' GROUP BY q.queue_id, q.queue_name ORDER BY interaction_count DESC, q.queue_name ASC;"
+
 },
 {
   "id": "Q004",
