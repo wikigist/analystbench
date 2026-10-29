@@ -86,13 +86,14 @@ def test_q003_wrong_month_fails_even_if_answer_matches(monkeypatch):
     )
 
     august_sql = """
-    SELECT q.queue_name, COUNT(*) AS interaction_count
-    FROM agent_interactions ai
-    JOIN queues q ON ai.queue_id = q.queue_id
-    WHERE ai.started_at >= DATE '2026-08-01'
-      AND ai.started_at < DATE '2026-09-01'
-    GROUP BY q.queue_name
-    ORDER BY interaction_count DESC;
+    SELECT q.queue_name, COUNT(ai.queue_id) AS interaction_count
+    FROM queues q
+    LEFT JOIN agent_interactions ai
+        ON ai.queue_id = q.queue_id
+        AND ai.started_at >= DATE '2026-08-01'
+        AND ai.started_at < DATE '2026-09-01'
+    GROUP BY q.queue_id, q.queue_name
+    ORDER BY interaction_count DESC, q.queue_name ASC;
     """
 
     result = q003_evaluation.evaluate_q003_sql(august_sql)

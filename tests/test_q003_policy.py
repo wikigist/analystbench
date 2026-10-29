@@ -41,3 +41,14 @@ def test_q003_rejects_wrong_ranking_order():
     result = extract_q003_date_bounds(sql)
 
     assert result is None
+
+
+def test_q003_rejects_wrong_count():
+    sql = get_reference_sql().replace(
+        "COUNT(ai.queue_id)",
+        "COUNT(*)",
+    )
+
+    result = extract_q003_date_bounds(sql)
+
+    assert result is None
