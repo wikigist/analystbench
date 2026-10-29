@@ -10,9 +10,9 @@ Q003_PATTERN = re.compile(
     r"""
     SELECT\s+q\.queue_name\s*,\s*COUNT\s*\(\s*ai\.queue_id\s*\)
     \s+AS\s+interaction_count
-    \s+FROM\s+(?:public\.)?queues\s+q
-    \s+LEFT\s+JOIN\s+(?:public\.)?agent_interactions\s+ai
-    \s+ON\s+ai\.queue_id\s*=\s*q\.queue_id
+    \s+FROM\s+(?:public\.)?queues\s+(?:AS\s+)?q
+    \s+LEFT\s+JOIN\s+(?:public\.)?agent_interactions\s+(?:AS\s+)?ai
+    \s+ON\s+(?:ai\.queue_id\s*=\s*q\.queue_id|q\.queue_id\s*=\s*ai\.queue_id)
     \s+AND\s+ai\.started_at\s*>=\s*
     (?:(?:DATE|TIMESTAMP)\s*)?'(?P<start>\d{4}-\d{2}-\d{2})'
     \s+AND\s+ai\.started_at\s*<\s*
