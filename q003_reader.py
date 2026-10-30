@@ -29,17 +29,20 @@ def execute_q003_bounds(start_date, end_date):
             if connected_user != "analystbench_reader":
                 raise RuntimeError("Unsafe database account detected")
 
+
             cursor.execute("""
-                SELECT q.queue_name,
-                       COUNT(*) AS interaction_count
-                FROM public.agent_interactions ai
-                JOIN public.queues q
+                SELECT
+                    q.queue_name,
+                    COUNT(ai.queue_id) AS interaction_count
+                FROM public.queues q
+                LEFT JOIN public.agent_interactions ai
                     ON ai.queue_id = q.queue_id
-                WHERE ai.started_at >= %s
-                  AND ai.started_at < %s
-                GROUP BY q.queue_name
+                    AND ai.started_at >= %s
+                    AND ai.started_at < %s
+                GROUP BY q.queue_id, q.queue_name
                 ORDER BY interaction_count DESC, q.queue_name ASC;
             """, (start_date, end_date))
+
 
             rows = cursor.fetchall()
 
