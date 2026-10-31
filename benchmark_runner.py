@@ -1,6 +1,10 @@
 import json 
 import psycopg
 from evaluators import check_integer_answer, check_ranked_answer, check_unordered_answer
+from result_history import save_result
+from uuid import uuid4
+
+RUN_ID = str(uuid4())
 
 def report_result(case_id, expected, actual, passed):
     print(case_id)
@@ -11,6 +15,8 @@ def report_result(case_id, expected, actual, passed):
         print("PASS")
     else:
         print("FAIL")
+
+    save_result(case_id, passed, run_id=RUN_ID)
 
 
 
