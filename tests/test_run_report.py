@@ -25,6 +25,7 @@ def test_summarize_empty_history(tmp_path):
     assert summary["total"] == 0
     assert summary["passed"] == 0
     assert summary["failed"] == 0
+    assert summary["pass_rate_pct"] == 0.0
 
 
 def test_summarize_history_filters_by_run_id(tmp_path):
@@ -41,3 +42,19 @@ def test_summarize_history_filters_by_run_id(tmp_path):
     assert summary["total"] == 2
     assert summary["passed"] == 2
     assert summary["failed"] == 0
+
+
+
+def test_summarize_history_calculates_run_pass_rate(tmp_path):
+    file_path = tmp_path / "evaluations.jsonl"
+
+    save_result("Q001", True, file_path, run_id="run-001")
+    save_result("Q002", False, file_path, run_id="run-001")
+    save_result("Q003", True, file_path, run_id="run-002")
+
+    summary = summarize_history(file_path, run_id="run-001")
+
+    assert summary["total"] == 2
+    assert summary["passed"] == 1
+    assert summary["failed"] == 1
+    assert summary["pass_rate_pct"] == 50.0

@@ -17,8 +17,17 @@ def summarize_history(file_path="runs/evaluations.jsonl", run_id=None):
             elif record["status"] == "FAIL":
                 failed += 1
 
+
+    total = passed + failed
+
+    if total > 0:
+        pass_rate_pct = (passed / total) * 100
+    else:
+        pass_rate_pct = 0.0
+
     return {
-        "total": passed + failed,
+        "total": total,
         "passed": passed,
         "failed": failed,
+        "pass_rate_pct": pass_rate_pct,
     }
