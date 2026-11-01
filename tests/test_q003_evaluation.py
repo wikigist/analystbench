@@ -101,3 +101,52 @@ def test_q003_wrong_month_fails_even_if_answer_matches(monkeypatch):
     assert result["actual_answer"] == CORRECT_RANKING
     assert result["date_filter_correct"] is False
     assert result["status"] == "FAIL"
+
+
+
+def test_run_q003_live_saves_rejected_model_result(monkeypatch):
+    saved_results = []
+
+    def fake_generate_sql(question_text, schema_text):
+        return "INVALID SQL"
+
+    def fake_evaluate_sql(sql):
+        assert sql == "INVALID SQL"
+        return {
+            "status": "REJECTED",
+            "actual_answer": None,
+        }
+
+    def fake_save_result(case_id, **kwargs):
+        saved_results.append((case_id, kwargs))
+
+    monkeypatch.setattr(
+        q003_evaluation,
+        "generate_sql",
+        fake_generate_sql,
+    )
+
+    monkeypatch.setattr(
+        q003_evaluation,
+        "evaluate_q003_sql",
+        fake_evaluate_sql,
+    )
+
+    monkeypatch.setattr(
+        q003_evaluation,
+        "save_result",
+        fake_save_result,
+        raising=False,
+    )
+
+    result = q003_evaluation.run_q003_live()
+
+    assert result["status"] == "REJECTED"
+    assert len(saved_results) == 1
+
+    case_id, saved_data = saved_results[0]
+
+    assert case_id == "Q003"
+    assert saved_data["status"] == "REJECTED"
+    assert saved_data["evaluation_type"] == "model"
+    assert saved_data["run_id"] is not None

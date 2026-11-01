@@ -52,3 +52,31 @@ def test_save_result_records_evaluation_type(tmp_path):
 
     assert records[0]["evaluation_type"] == "reference"
     assert records[1]["evaluation_type"] == "model"
+
+
+def test_save_result_preserves_model_outcomes(tmp_path):
+    file_path = tmp_path / "evaluations.jsonl"
+
+    save_result(
+        "Q003",
+        file_path=file_path,
+        run_id="run-001",
+        evaluation_type="model",
+        status="REJECTED",
+    )
+
+    save_result(
+        "Q003",
+        file_path=file_path,
+        run_id="run-001",
+        evaluation_type="model",
+        status="ERROR",
+    )
+
+    with file_path.open("r", encoding="utf-8") as file:
+        records = [json.loads(line) for line in file]
+
+    assert records[0]["status"] == "REJECTED"
+    assert records[1]["status"] == "ERROR"
+    assert records[0]["evaluation_type"] == "model"
+    assert records[1]["run_id"] == "run-001"
