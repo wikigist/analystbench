@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 
-def summarize_history(file_path="runs/evaluations.jsonl", run_id=None):
+def summarize_history(file_path="runs/evaluations.jsonl", run_id=None, evaluation_type=None,):
     passed = 0
     failed = 0
 
@@ -10,6 +10,13 @@ def summarize_history(file_path="runs/evaluations.jsonl", run_id=None):
         for line in file:
             record = json.loads(line)
             if run_id is not None and record.get("run_id") != run_id:
+                continue
+
+
+            if (
+                evaluation_type is not None
+                and record.get("evaluation_type", "reference") != evaluation_type
+                ):
                 continue
 
             if record["status"] == "PASS":

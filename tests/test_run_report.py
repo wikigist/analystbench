@@ -58,3 +58,40 @@ def test_summarize_history_calculates_run_pass_rate(tmp_path):
     assert summary["passed"] == 1
     assert summary["failed"] == 1
     assert summary["pass_rate_pct"] == 50.0
+
+
+def test_summarize_history_filters_evaluation_type(tmp_path):
+    file_path = tmp_path / "evaluations.jsonl"
+
+    save_result("Q001", True, file_path, evaluation_type="reference")
+    save_result("Q001", False, file_path, evaluation_type="model")
+    save_result("Q002", True, file_path, evaluation_type="model")
+
+    summary = summarize_history(file_path, evaluation_type="model")
+
+    assert summary["total"] == 2
+    assert summary["passed"] == 1
+    assert summary["failed"] == 1
+    assert summary["pass_rate_pct"] == 50.0
+
+
+
+def test_summarize_history_filters_run_and_type(tmp_path):
+    file_path = tmp_path / "evaluations.jsonl"
+
+    save_result("Q001", True, file_path, run_id="run-001", evaluation_type="model")
+    save_result("Q002", False, file_path, run_id="run-001", evaluation_type="model")
+
+    save_result("Q003", True, file_path, run_id="run-001", evaluation_type="reference")
+    save_result("Q004", True, file_path, run_id="run-002", evaluation_type="model")
+
+    summary = summarize_history(
+        file_path,
+        run_id="run-001",
+        evaluation_type="model",
+    )
+
+    assert summary["total"] == 2
+    assert summary["passed"] == 1
+    assert summary["failed"] == 1
+    assert summary["pass_rate_pct"] == 50.0

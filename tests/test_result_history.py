@@ -33,3 +33,22 @@ def test_save_result_preserves_run_id(tmp_path):
     assert records[0]["run_id"] == "run-001"
     assert records[1]["run_id"] == "run-001"
     assert records[2]["run_id"] == "run-002"
+
+
+
+def test_save_result_records_evaluation_type(tmp_path):
+    file_path = tmp_path / "evaluations.jsonl"
+
+    save_result("Q001", True, file_path)
+    save_result(
+        "Q002",
+        False,
+        file_path,
+        evaluation_type="model",
+    )
+
+    with file_path.open("r", encoding="utf-8") as file:
+        records = [json.loads(line) for line in file]
+
+    assert records[0]["evaluation_type"] == "reference"
+    assert records[1]["evaluation_type"] == "model"

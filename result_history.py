@@ -3,11 +3,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-def save_result(case_id, passed, file_path="runs/evaluations.jsonl", run_id=None):
+def save_result(case_id, passed, file_path="runs/evaluations.jsonl", run_id=None, evaluation_type="reference",):
     record = {
         "case_id": case_id,
         "status": "PASS" if passed else "FAIL",
         "recorded_at": datetime.now(timezone.utc).isoformat(),
+        "evaluation_type": evaluation_type,
     }
 
     if run_id is not None:
