@@ -1,18 +1,10 @@
 import json 
 import psycopg
 from evaluators import check_integer_answer, check_ranked_answer, check_unordered_answer
+from uuid import uuid4
+from benchmark_reporting import report_result
 
-def report_result(case_id, expected, actual, passed):
-    print(case_id)
-    print("Expected:", expected)
-    print("Actual:", actual)
-    
-    if passed:
-        print("PASS")
-    else:
-        print("FAIL")
-
-
+RUN_ID = str(uuid4())
 
 with open("benchmarks/benchmark_cases.json", "r") as file:
     benchmark_cases = json.load(file)
@@ -31,7 +23,7 @@ with psycopg.connect("dbname=analystbench") as connection:
 
                 passed = check_integer_answer(actual_answer, expected_answer)
 
-                report_result(case["id"], expected_answer, actual_answer, passed)
+                report_result(case["id"], expected_answer, actual_answer, passed, run_id=RUN_ID)
 
             elif case["answer_type"] == "ranked_list":
                     reference_sql = case["reference_sql"]
@@ -52,7 +44,7 @@ with psycopg.connect("dbname=analystbench") as connection:
                 
                     passed = check_ranked_answer(actual_answer, expected_answer)
 
-                    report_result(case["id"], expected_answer, actual_answer, passed)
+                    report_result(case["id"], expected_answer, actual_answer, passed, run_id=RUN_ID)
 
             elif case["answer_type"] == "unordered_list":
                  reference_sql = case["reference_sql"]
@@ -75,6 +67,6 @@ with psycopg.connect("dbname=analystbench") as connection:
                  sort_key = case.get("sort_key", "customer_id") 
                  passed = check_unordered_answer(actual_answer, expected_answer, sort_key)
 
-                 report_result(case["id"], expected_answer, actual_answer, passed)
+                 report_result(case["id"], expected_answer, actual_answer, passed, run_id=RUN_ID)
 
            
