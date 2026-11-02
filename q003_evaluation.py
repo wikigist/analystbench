@@ -1,11 +1,12 @@
 import json
 import psycopg
-
 from evaluators import check_ranked_answer
 from q003_reader import execute_q003_bounds
 from q003_policy import extract_q003_date_bounds
 from datetime import date
 from llm_probe import generate_sql
+from uuid import uuid4
+from result_history import save_result
 
 
 Q003_SCHEMA = """
@@ -103,6 +104,12 @@ def run_q003_live():
     print(sql)
 
     result = evaluate_q003_sql(sql)
+    save_result(
+        "Q003",
+        status=result["status"],
+        evaluation_type="model",
+        run_id=str(uuid4()),
+        )
 
     print("Q003 evaluation result:", result)
 
