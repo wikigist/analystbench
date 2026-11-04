@@ -15,3 +15,13 @@ def get_next_chunk(chunks, matching_index):
         return chunks[next_index]
 
     return None
+
+
+def retrieve_records_by_keyword(records, keyword):
+    matches = []
+
+    for record in records:
+        if keyword.lower() in record["text"].lower():
+            matches.append(record)
+
+    return matches
