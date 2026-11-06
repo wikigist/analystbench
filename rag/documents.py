@@ -1,4 +1,5 @@
 from rag.chunking import chunk_text
+from pathlib import Path
 
 
 def chunk_document(text, source, chunk_size=5, overlap=2):
@@ -14,3 +15,14 @@ def chunk_document(text, source, chunk_size=5, overlap=2):
         })
 
     return records
+
+
+def load_document(file_path):
+    path = Path(file_path)
+
+    text = path.read_text(encoding="utf-8")
+
+    return {
+        "text": text,
+        "source": path.name
+    }
