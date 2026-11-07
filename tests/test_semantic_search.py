@@ -32,3 +32,13 @@ def test_retrieve_by_meaning():
     assert result["source"] == "refund_policy.txt"
     assert result["vector"] == [0.5, 0.5]
     assert "vector" not in records[1]
+
+
+def test_retrieve_by_meaning_empty_records():
+    result = retrieve_by_meaning(
+        "How can I get my money back?",
+        [],
+        embed_fn=fake_embed
+    )
+
+    assert result is None
