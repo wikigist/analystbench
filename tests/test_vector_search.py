@@ -1,6 +1,7 @@
 from rag.vector_search import vector_distance
 from rag.vector_search import find_closest_vector
 from rag.vector_search import find_closest_record
+from rag.vector_search import find_top_k_records
 
 
 def test_vector_distance_identical_vectors():
@@ -60,3 +61,26 @@ def test_find_closest_record():
     result = find_closest_record(question, records)
 
     assert result == records[1]
+
+
+def test_find_top_k_records():
+    question = [0.0, 0.0]
+
+    records = [
+        {
+            "text": "Refund policy",
+            "vector": [0.2, 0.0]
+        },
+        {
+            "text": "Training policy",
+            "vector": [0.9, 0.0]
+        },
+        {
+            "text": "Refund approval policy",
+            "vector": [0.3, 0.0]
+        }
+    ]
+
+    result = find_top_k_records(question, records, k=2)
+
+    assert result == [records[0], records[2]]

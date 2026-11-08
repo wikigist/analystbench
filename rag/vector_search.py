@@ -35,3 +35,15 @@ def find_closest_record(question_vector, records):
     )
 
     return records[closest_index]
+
+
+def find_top_k_records(question_vector, records, k=2):
+    ranked_records = sorted(
+        records,
+        key=lambda record: vector_distance(
+            question_vector,
+            record["vector"]
+        )
+    )
+
+    return ranked_records[:k]
