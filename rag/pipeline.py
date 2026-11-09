@@ -1,7 +1,5 @@
-from rag.documents import chunk_document
-from rag.retrieval import retrieve_records_by_keyword
-from rag.documents import load_document
 from rag.documents import load_document, chunk_document
+from rag.retrieval import retrieve_records_by_keyword
 from rag.semantic_search import index_records
 from rag.embeddings import embed_text
 
