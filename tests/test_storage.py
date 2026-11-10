@@ -1,5 +1,5 @@
-from rag.storage import save_index
 import json
+
 from rag.storage import save_index, load_index
 from rag.pipeline import index_file
 from rag.semantic_search import search_index_top_k
