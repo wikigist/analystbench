@@ -1,7 +1,9 @@
-from rag.retrieval_eval import recall_at_k
-from rag.retrieval_eval import recall_at_k, precision_at_k
-from rag.retrieval_eval import recall_at_k, precision_at_k, chunk_key
-from rag.retrieval_eval import evaluate_retrieved_chunks
+from rag.retrieval_eval import (
+    recall_at_k,
+    precision_at_k,
+    chunk_key,
+    evaluate_retrieved_chunks,
+)
 
 
 def test_recall_at_3():
