@@ -1,5 +1,9 @@
-from rag.retrieval_eval import recall_at_k
-from rag.retrieval_eval import recall_at_k, precision_at_k
+from rag.retrieval_eval import (
+    recall_at_k,
+    precision_at_k,
+    chunk_key,
+    evaluate_retrieved_chunks,
+)
 
 
 def test_recall_at_3():
@@ -74,3 +78,45 @@ def test_empty_retrieval():
 
     assert recall == 0.0
     assert precision == 0.0
+
+
+def test_chunk_key_distinguishes_documents():
+    refund = {
+        "source": "refund_policy.txt",
+        "chunk_id": 2
+    }
+
+    training = {
+        "source": "training_policy.txt",
+        "chunk_id": 2
+    }
+
+    refund_key = chunk_key(refund)
+    training_key = chunk_key(training)
+
+    assert refund_key == ("refund_policy.txt", 2)
+    assert training_key == ("training_policy.txt", 2)
+
+    assert refund_key != training_key
+
+
+
+def test_evaluate_retrieved_chunks():
+    retrieved_records = [
+        {"source": "training_policy.txt", "chunk_id": 2},
+        {"source": "refund_policy.txt", "chunk_id": 2}
+    ]
+
+    relevant_records = [
+        {"source": "refund_policy.txt", "chunk_id": 2},
+        {"source": "refund_policy.txt", "chunk_id": 3}
+    ]
+
+    result = evaluate_retrieved_chunks(
+        retrieved_records,
+        relevant_records,
+        k=2
+    )
+
+    assert result["recall"] == 0.5
+    assert result["precision"] == 0.5
