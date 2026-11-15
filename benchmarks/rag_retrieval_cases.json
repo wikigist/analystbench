@@ -1,0 +1,15 @@
+[
+  {
+    "case_id": "RAG001",
+    "question": "How long do customers have to request a refund?",
+    "file_path": "sample_docs/refund_policy.txt",
+    "chunk_size": 8,
+    "overlap": 2,
+    "relevant_records": [
+      {
+        "source": "refund_policy.txt",
+        "chunk_id": 1
+      }
+    ]
+  }
+]
