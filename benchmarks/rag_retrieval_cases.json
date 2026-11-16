@@ -8,7 +8,22 @@
     "relevant_records": [
       {
         "source": "refund_policy.txt",
+        "evidence_phrase": "thirty days",
         "chunk_id": 1
+      }
+    ]
+  },
+    {
+    "case_id": "RAG002",
+    "question": "Is a receipt required for a refund?",
+    "file_path": "sample_docs/refund_policy.txt",
+    "chunk_size": 8,
+    "overlap": 2,
+    "relevant_records": [
+      {
+        "source": "refund_policy.txt",
+        "evidence_phrase": "receipt is required",
+        "chunk_id": 2
       }
     ]
   }
