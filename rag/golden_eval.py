@@ -29,6 +29,9 @@ def evaluate_golden_cases(cases, embed_fn, k=1):
 
         results.append({
             "case_id": case["case_id"],
+            "retrieved_chunk_ids": [
+                record["chunk_id"] for record in retrieved
+                ],
             "recall": metrics["recall"],
             "precision": metrics["precision"]
         })
