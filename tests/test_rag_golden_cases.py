@@ -141,3 +141,7 @@ def test_evaluate_multiple_golden_cases():
 
     assert all(result["recall"] == 1.0 for result in results)
     assert all(result["precision"] == 1.0 for result in results)
+    assert [result["retrieved_chunk_ids"] for result in results] == [
+    [1],
+    [2]
+    ]
