@@ -117,7 +117,10 @@ def test_evaluate_multiple_golden_cases():
     ) as file:
         cases = json.load(file)
 
+        embedded_texts = []
+
     def fake_embed(text):
+        embedded_texts.append(text)
         text = text.lower()
 
         if "how long" in text or "thirty days" in text:
@@ -145,3 +148,4 @@ def test_evaluate_multiple_golden_cases():
     [1],
     [2]
     ]
+    assert len(embedded_texts) == 7

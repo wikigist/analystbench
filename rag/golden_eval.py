@@ -5,14 +5,24 @@ from rag.retrieval_eval import evaluate_retrieved_chunks
 
 def evaluate_golden_cases(cases, embed_fn, k=1):
     results = []
+    index_cache = {}
 
     for case in cases:
-        records = index_file(
-            file_path=case["file_path"],
-            chunk_size=case["chunk_size"],
-            overlap=case["overlap"],
-            embed_fn=embed_fn
-        )
+        cache_key = (
+            case["file_path"],
+            case["chunk_size"],
+            case["overlap"]
+            )
+
+
+        if cache_key not in index_cache:
+             index_cache[cache_key] = index_file(
+                  file_path=case["file_path"],
+                  chunk_size=case["chunk_size"],
+                  overlap=case["overlap"],
+                  embed_fn=embed_fn
+                  )
+        records = index_cache[cache_key]
 
         retrieved = search_index_top_k(
             case["question"],
