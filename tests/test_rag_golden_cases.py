@@ -149,3 +149,55 @@ def test_evaluate_multiple_golden_cases():
     [2]
     ]
     assert len(embedded_texts) == 7
+
+
+def test_changed_document_is_reindexed(tmp_path):
+    file_path = tmp_path / "refund_policy.txt"
+
+    file_path.write_text("Refunds within 30 days.")
+
+    cases = [
+        {
+            "case_id": "TEST001",
+            "file_path": str(file_path),
+            "chunk_size": 20,
+            "overlap": 2,
+            "question": "Question one?",
+            "relevant_records": []
+        },
+        {
+            "case_id": "TEST002",
+            "file_path": str(file_path),
+            "chunk_size": 20,
+            "overlap": 2,
+            "question": "Question two?",
+            "relevant_records": []
+        }
+    ]
+
+    print("Case IDs:", [case["case_id"] for case in cases])
+
+    embedding_calls = []
+
+    def fake_embed(text):
+        embedding_calls.append(text)
+
+        if text == "Question one?":
+            file_path.write_text("Refunds within 60 days.")
+
+        return [float(len(text)), 0.0]
+
+    results = evaluate_golden_cases(
+        cases,
+        embed_fn=fake_embed,
+        k=1
+    )
+
+    assert len(results) == 2
+
+    assert embedding_calls == [
+        "Refunds within 30 days.",
+        "Question one?",
+        "Refunds within 60 days.",
+        "Question two?"
+        ]
