@@ -2,7 +2,7 @@ import json
 from rag.semantic_search import search_index_top_k
 from rag.retrieval_eval import evaluate_retrieved_chunks
 from rag.golden_eval import evaluate_golden_cases
-
+import pytest
 from rag.pipeline import index_file
 
 
@@ -201,3 +201,154 @@ def test_changed_document_is_reindexed(tmp_path):
         "Refunds within 60 days.",
         "Question two?"
         ]
+
+
+def test_persistent_cache_reuses_saved_document(tmp_path):
+    file_path = tmp_path / "refund_policy.txt"
+    file_path.write_text("Refunds within 30 days.")
+
+    cache_dir = tmp_path / "rag_cache"
+
+    embedding_calls = []
+
+    def fake_embed(text):
+        embedding_calls.append(text)
+        return [float(len(text)), 0.0]
+
+    cases = [
+        {
+            "case_id": "TEST001",
+            "file_path": str(file_path),
+            "chunk_size": 100,
+            "overlap": 0,
+            "question": "How long do customers have to request a refund?",
+            "relevant_records": []
+        }
+    ]
+
+    first_results = evaluate_golden_cases(
+        cases,
+        embed_fn=fake_embed,
+        k=1,
+        cache_dir=cache_dir,
+        embedding_id="fake-len-v1"
+    )
+
+    second_results = evaluate_golden_cases(
+        cases,
+        embed_fn=fake_embed,
+        k=1,
+        cache_dir=cache_dir,
+        embedding_id="fake-len-v1"
+    )
+
+    assert len(embedding_calls) == 3
+    assert embedding_calls.count("Refunds within 30 days.") == 1
+    assert len(list(cache_dir.glob("*.json"))) == 1
+    assert first_results == second_results
+
+
+def test_persistent_cache_separates_embedding_models(tmp_path):
+    file_path = tmp_path / "refund_policy.txt"
+    file_path.write_text("Refunds within 30 days.")
+
+    cache_dir = tmp_path / "rag_cache"
+    embedding_calls = []
+
+    def fake_embed(text):
+        embedding_calls.append(text)
+        return [float(len(text)), 0.0]
+
+    cases = [
+        {
+            "case_id": "TEST001",
+            "file_path": str(file_path),
+            "chunk_size": 100,
+            "overlap": 0,
+            "question": "How long is the refund period?",
+            "relevant_records": []
+        }
+    ]
+
+    evaluate_golden_cases(
+        cases,
+        embed_fn=fake_embed,
+        cache_dir=cache_dir,
+        embedding_id="model-A"
+    )
+
+    evaluate_golden_cases(
+        cases,
+        embed_fn=fake_embed,
+        cache_dir=cache_dir,
+        embedding_id="model-B"
+    )
+
+    assert embedding_calls.count("Refunds within 30 days.") == 2
+    assert len(embedding_calls) == 4
+    assert len(list(cache_dir.glob("*.json"))) == 2
+
+
+def test_persistent_cache_requires_embedding_id(tmp_path):
+    cache_dir = tmp_path / "rag_cache"
+
+    def fake_embed(text):
+        return [float(len(text)), 0.0]
+
+    with pytest.raises(
+        ValueError,
+        match="embedding_id is required for persistent caching"
+    ):
+        evaluate_golden_cases(
+            [],
+            embed_fn=fake_embed,
+            cache_dir=cache_dir
+        )
+
+
+def test_persistent_cache_reindexes_changed_document(tmp_path):
+    file_path = tmp_path / "refund_policy.txt"
+    file_path.write_text("Refunds within 30 days.")
+
+    cache_dir = tmp_path / "rag_cache"
+    embedding_calls = []
+
+    def fake_embed(text):
+        embedding_calls.append(text)
+        return [float(len(text)), 0.0]
+
+    cases = [
+        {
+            "case_id": "TEST001",
+            "file_path": str(file_path),
+            "chunk_size": 100,
+            "overlap": 0,
+            "question": "How long is the refund period?",
+            "relevant_records": []
+        }
+    ]
+
+    evaluate_golden_cases(
+        cases,
+        embed_fn=fake_embed,
+        cache_dir=cache_dir,
+        embedding_id="fake-len-v1"
+    )
+
+    file_path.write_text("Refunds within 60 days.")
+
+    evaluate_golden_cases(
+        cases,
+        embed_fn=fake_embed,
+        cache_dir=cache_dir,
+        embedding_id="fake-len-v1"
+    )
+
+    assert embedding_calls == [
+        "Refunds within 30 days.",
+        "How long is the refund period?",
+        "Refunds within 60 days.",
+        "How long is the refund period?"
+    ]
+
+    assert len(list(cache_dir.glob("*.json"))) == 2
