@@ -2,6 +2,7 @@ from rag.pipeline import search_document
 from rag.pipeline import search_file
 from rag.pipeline import index_file
 from rag.semantic_search import search_index_top_k
+from rag.pipeline import answer_from_index
 
 
 def test_search_document_returns_evidence_with_source():
@@ -127,3 +128,67 @@ def test_indexed_file_reuses_embeddings():
     )
 
     assert len(calls) == document_calls + 1
+
+
+def test_answer_from_index_retrieves_and_generates():
+    question = "How long is the refund period?"
+
+    indexed_records = [
+        {
+            "source": "delivery_policy.txt",
+            "chunk_id": 0,
+            "text": "Delivery takes 5 days.",
+            "vector": [0.0, 1.0]
+        },
+        {
+            "source": "refund_policy.txt",
+            "chunk_id": 0,
+            "text": "Refunds within 30 days.",
+            "vector": [1.0, 0.0]
+        }
+    ]
+
+    def fake_embed(text):
+        return [1.0, 0.0]
+
+    received_prompts = []
+
+    def fake_generate(prompt):
+        received_prompts.append(prompt)
+        return "Customers have 30 days to request a refund."
+
+    answer = answer_from_index(
+        question,
+        indexed_records,
+        fake_generate,
+        k=1,
+        embed_fn=fake_embed
+    )
+
+    assert answer == "Customers have 30 days to request a refund."
+    assert len(received_prompts) == 1
+
+    assert "[refund_policy.txt:0] Refunds within 30 days." in received_prompts[0]
+    assert "Delivery takes 5 days." not in received_prompts[0]
+    assert f"Question: {question}" in received_prompts[0]
+
+
+def test_answer_from_index_abstains_with_empty_index():
+    question = "How long is the refund period?"
+    indexed_records = []
+
+    def fake_embed(text):
+        raise AssertionError("Embedding should not be called")
+
+    def fake_generate(prompt):
+        raise AssertionError("Generator should not be called")
+
+    answer = answer_from_index(
+        question,
+        indexed_records,
+        fake_generate,
+        k=1,
+        embed_fn=fake_embed
+    )
+
+    assert answer == "I don't know."
