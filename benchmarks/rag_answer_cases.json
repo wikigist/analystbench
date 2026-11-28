@@ -1,0 +1,49 @@
+[
+    {
+        "case_id": "answer_001",
+        "question": "What is the refund period and do I need a receipt?",
+        "records": [
+            {
+                "source": "refund_policy.txt",
+                "chunk_id": 0,
+                "text": "Refunds within 30 days."
+            },
+            {
+                "source": "refund_policy.txt",
+                "chunk_id": 1,
+                "text": "A valid receipt is required."
+            }
+        ],
+        "expected_claims": [
+            "Refunds within 30 days.",
+            "A valid receipt is required."
+        ],
+        "expected_citations": [
+            "[refund_policy.txt:0]",
+            "[refund_policy.txt:1]"
+        ],
+        "should_abstain": false
+    },
+    {
+        "case_id": "answer_002",
+        "question": "How much does international delivery cost?",
+        "records": [
+            {
+                "source": "refund_policy.txt",
+                "chunk_id": 0,
+                "text": "Refunds within 30 days."
+            }
+        ],
+        "expected_claims": [],
+        "expected_citations": [],
+        "should_abstain": true
+    },
+    {
+        "case_id": "answer_003",
+        "question": "What is the refund period?",
+        "records": [],
+        "expected_claims": [],
+        "expected_citations": [],
+        "should_abstain": true
+    }
+]
